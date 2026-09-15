@@ -444,7 +444,7 @@
               <div class="gce-count">27</div>
               <div class="gce-count-lbl">reports</div>
             </div>
-            <a class="go" id="gceLink" href="#" target="_blank" rel="noopener">Open workspace →</a>
+            <a class="go" id="gceLink" href="#" target="_top" rel="noopener">Open workspace →</a>
           </div>
         </div>
       </div>
@@ -463,9 +463,9 @@ const REPORT_LINKS = {
   "O2C01": "https://koch.us-1.celonis.cloud/package-manager/ui/views/ui/spaces/f86e4b6d-a30f-46e0-98b5-45584e9e3356/packages/24538eeb-64ab-46ec-b41f-8d11e8580da0/nodes/8700364d-86b2-4db6-9e02-9793a6a74c14?activeTabs=sales-order-overview:4c6e2a46-2888-4219-865d-34e7ecae2937",   // Sales Order Overview
   "O2C04": "https://koch.us-1.celonis.cloud/package-manager/ui/views/ui/spaces/f86e4b6d-a30f-46e0-98b5-45584e9e3356/packages/24538eeb-64ab-46ec-b41f-8d11e8580da0/nodes/e5f3ac60-05b9-49a9-afdc-f46620c79425?activeTabs=order-to-cash-order-acknowledgement-confirmation:8b122d7d-5d41-45a8-86b4",   // Order Acknowledgement & Confirmation
   "O2C07": "https://koch.us-1.celonis.cloud/package-manager/ui/views/ui/spaces/f86e4b6d-a30f-46e0-98b5-45584e9e3356/packages/24538eeb-64ab-46ec-b41f-8d11e8580da0/nodes/2f9016bd-41d7-4101-8f6c-68a9b3891b5f?activeTabs=order-maintenance-discrete-orders-copy:9ce2c2c8-7415-400a-a302-7bb111696d44",   // Order Maintenance – Discrete Orders
-  "O2C20": "https://koch.us-1.celonis.cloud/package-manager/ui/views/ui/spaces/f86e4b6d-a30f-46e0-98b5-45584e9e3356/packages/24538eeb-64ab-46ec-b41f-8d11e8580da0/nodes/a9423a4c-fd9e-4caa-bad3-7375013a136b?activeTabs=sa-test-copy-gagan:79b7707e-a5a9-4a32-a2c8-7edfcb5ff588",   // Scheduling Agreement
-  "O2C22": "https://koch.us-1.celonis.cloud/package-manager/ui/views/ui/spaces/f86e4b6d-a30f-46e0-98b5-45584e9e3356/packages/24538eeb-64ab-46ec-b41f-8d11e8580da0/nodes/78580caf-85f9-443f-8dfc-8a131b0b6356?activeTabs=customer-order-status:2a65d3b7-ea36-4cd0-b1ef-ea4cd88143ec",   // Sales Order Status
-  "O2C22.1": "https://koch.us-1.celonis.cloud/package-manager/ui/views/ui/spaces/f86e4b6d-a30f-46e0-98b5-45584e9e3356/packages/24538eeb-64ab-46ec-b41f-8d11e8580da0/nodes/70f730d3-6c18-4f8e-9be9-c20aea4aa2bc", // Backlog Details
+  "O2C20": "https://koch.us-1.celonis.cloud/package-manager/ui/views/ui/spaces/f86e4b6d-a30f-46e0-98b5-45584e9e3356/packages/24538eeb-64ab-46ec-b41f-8d11e8580da0/nodes/4646d094-3a21-4da4-9709-4b4b4f69a104?activeTabs=o2c20-scheduling-agreement-ame:79b7707e-a5a9-4a32-a2c8-7edfcb5ff588",   // Scheduling Agreement
+  "O2C22": "https://koch.us-1.celonis.cloud/package-manager/ui/views/ui/spaces/f86e4b6d-a30f-46e0-98b5-45584e9e3356/packages/24538eeb-64ab-46ec-b41f-8d11e8580da0/nodes/6b1b699e-f538-47cc-9aec-236e326b1bfd?activeTabs=o2c22-sales-order-status-eur:2a65d3b7-ea36-4cd0-b1ef-ea4cd88143ec",   // Sales Order Status
+  "O2C22.1": "https://koch.us-1.celonis.cloud/package-manager/ui/views/ui/spaces/f86e4b6d-a30f-46e0-98b5-45584e9e3356/packages/24538eeb-64ab-46ec-b41f-8d11e8580da0/nodes/70f730d3-6c18-4f8e-9be9-c20aea4aa2bc?activeTabs=o2c22-2-backlog-details:2a65d3b7-ea36-4cd0-b1ef-ea4cd88143ec", // Backlog Details
   "O2C23": "https://koch.us-1.celonis.cloud/package-manager/ui/views/ui/spaces/f86e4b6d-a30f-46e0-98b5-45584e9e3356/packages/24538eeb-64ab-46ec-b41f-8d11e8580da0/nodes/6033cb11-ca7a-479a-9d7c-3c07522aa6a9?activeTabs=unallocated-order-analysis:eb6f796b-f1ae-477d-b038-5c3908eeea44",   // Unconfirmed Order Analysis — BEST GUESS, verify
 
   "O2C02": "https://koch.us-1.celonis.cloud/package-manager/ui/views/ui/spaces/f86e4b6d-a30f-46e0-98b5-45584e9e3356/packages/24538eeb-64ab-46ec-b41f-8d11e8580da0/nodes/7c176152-6152-4428-8a2e-09f0b2411037?activeTabs=process-mining-insight:05cfa926-01c7-418a-9340-86a24e2998ca",   // Command Center — BEST GUESS, verify
@@ -635,7 +635,7 @@ CATEGORIES.forEach(cat => {
         const link = REPORT_LINKS[code] || "";
         const hasLink = link.trim().length > 0;
         const tag = hasLink ? "a" : "div";
-        const hrefAttrs = hasLink ? `href="${link}" target="_blank" rel="noopener"` : "";
+        const hrefAttrs = hasLink ? `href="${link}" target="_top" rel="noopener"` : "";
         return `
         <${tag} class="report-row${hasLink ? '' : ' no-link'}" ${hrefAttrs} data-search="${(code+' '+name).toLowerCase()}">
           <span class="report-code">${code}</span>

@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>O2C Control Tower — Molex</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0B1F33;
+    --steel:#4A6A85;
+    --steel-soft:#9FB3C4;
+    --canvas:#EAF0F5;
+    --panel:#FFFFFF;
+    --line:#D7E0E8;
+    --amber:#C1791F;
+    --amber-soft:#F4E3C8;
+    --green:#2F7D5C;
+    --green-soft:#DCEEE5;
+    --red:#B4442E;
+    --red-soft:#F6E1DB;
+    --mono:'IBM Plex Mono', monospace;
+    --display:'Space Grotesk', sans-serif;
+    --body:'Inter', sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    font-family:var(--body);
+    background:var(--canvas);
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit;}
+
+  /* ---------- Layout shell ---------- */
+  .shell{display:flex; min-height:100vh;}
+
+  /* ---------- Sidebar ---------- */
+  .sidebar{
+    width:248px;
+    flex-shrink:0;
+    background:var(--ink);
+    color:#DCE6EE;
+    display:flex;
+    flex-direction:column;
+    position:sticky;
+    top:0;
+    height:100vh;
+    overflow-y:auto;
+  }
+  .sidebar-brand{
+    padding:26px 22px 18px;
+    border-bottom:1px solid rgba(255,255,255,0.1);
+  }
+  .sidebar-brand .mark{
+    font-family:var(--mono);
+    font-size:11px;
+    letter-spacing:0.04em;
+    color:var(--amber);
+    margin-bottom:6px;
+  }
+  .sidebar-brand h1{
+    font-family:var(--display);
+    font-size:19px;
+    margin:0;
+    line-height:1.25;
+    font-weight:600;
+  }
+  .sidebar-brand p{
+    margin:8px 0 0;
+    font-size:12.5px;
+    color:var(--steel-soft);
+    line-height:1.5;
+  }
+  .nav-group{padding:16px 12px;}
+  .nav-group-label{
+    font-size:11px;
+    color:var(--steel-soft);
+    padding:6px 10px 4px;
+    font-weight:500;
+  }
+  .nav-item{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:8px;
+    padding:9px 10px;
+    border-radius:6px;
+    font-size:13.5px;
+    color:#CBDAE5;
+    text-decoration:none;
+    cursor:pointer;
+    border:none;
+    background:transparent;
+    width:100%;
+    text-align:left;
+    font-family:var(--body);
+  }
+  .nav-item:hover{background:rgba(255,255,255,0.06); color:#fff;}
+  .nav-item.active{background:rgba(193,121,31,0.16); color:#fff;}
+  .nav-item .count{
+    font-family:var(--mono);
+    font-size:11px;
+    color:var(--steel-soft);
+  }
+  .sidebar-foot{
+    margin-top:auto;
+    padding:16px 22px 22px;
+    font-size:11.5px;
+    color:var(--steel-soft);
+    border-top:1px solid rgba(255,255,255,0.1);
+  }
+
+  /* ---------- Main ---------- */
+  .main{flex:1; min-width:0;}
+
+  .topbar{
+    position:sticky;
+    top:0;
+    z-index:5;
+    background:var(--panel);
+    border-bottom:1px solid var(--line);
+    padding:16px 32px;
+    display:flex;
+    align-items:center;
+    gap:20px;
+  }
+  .topbar h2{
+    font-family:var(--display);
+    font-size:15px;
+    margin:0;
+    font-weight:600;
+    white-space:nowrap;
+  }
+  .search-wrap{
+    flex:1;
+    max-width:420px;
+    position:relative;
+  }
+  .search-wrap input{
+    width:100%;
+    padding:9px 14px 9px 34px;
+    border:1px solid var(--line);
+    border-radius:7px;
+    font-size:13.5px;
+    font-family:var(--body);
+    background:var(--canvas);
+    color:var(--ink);
+  }
+  .search-wrap input:focus{outline:2px solid var(--amber); outline-offset:1px;}
+  .search-wrap svg{
+    position:absolute; left:11px; top:50%; transform:translateY(-50%);
+    width:15px; height:15px; color:var(--steel);
+  }
+  .legend{
+    display:flex;
+    gap:14px;
+    margin-left:auto;
+    font-size:12px;
+    color:var(--steel);
+  }
+  .legend span{display:flex; align-items:center; gap:6px;}
+  .dot{width:8px; height:8px; border-radius:50%; display:inline-block;}
+  .dot.available{background:var(--green);}
+  .dot.progress{background:var(--amber);}
+  .dot.design{background:var(--red);}
+
+  .hero{
+    padding:30px 32px 8px;
+  }
+  .hero-bar{
+    background:var(--ink);
+    border-radius:10px;
+    padding:22px 26px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:16px;
+  }
+  .hero-bar .welcome{
+    font-family:var(--display);
+    font-size:20px;
+    font-weight:600;
+    color:#fff;
+  }
+  .hero-bar .welcome span{color:var(--steel-soft); font-weight:500; font-size:13px; display:block; margin-top:4px; font-family:var(--body);}
+  .hero-stats{display:flex; gap:28px;}
+  .hero-stat{text-align:right;}
+  .hero-stat .num{font-family:var(--mono); font-size:20px; color:#fff; font-weight:600;}
+  .hero-stat .lbl{font-size:11px; color:var(--steel-soft); margin-top:2px;}
+
+  .content{padding:26px 32px 60px;}
+
+  /* ---------- Section ---------- */
+  .section{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:10px;
+    margin-bottom:22px;
+    overflow:hidden;
+    scroll-margin-top:80px;
+  }
+  .section-head{
+    padding:18px 22px 14px;
+    border-bottom:1px solid var(--line);
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+  }
+  .section-head h3{
+    font-family:var(--display);
+    font-size:15.5px;
+    margin:0;
+    font-weight:600;
+  }
+  .section-head .sub{
+    font-size:12px;
+    color:var(--steel);
+  }
+  .section-head .n{
+    font-family:var(--mono);
+    font-size:11.5px;
+    color:var(--steel);
+  }
+
+  .report-list{display:flex; flex-direction:column;}
+  .report-row{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    padding:12px 22px;
+    border-bottom:1px solid var(--line);
+    text-decoration:none;
+    color:var(--ink);
+  }
+  .report-row:last-child{border-bottom:none;}
+  .report-row:hover{background:var(--canvas);}
+  .report-code{
+    font-family:var(--mono);
+    font-size:11.5px;
+    color:var(--steel);
+    width:64px;
+    flex-shrink:0;
+  }
+  .report-name{
+    font-size:13.8px;
+    font-weight:500;
+    flex:1;
+    min-width:0;
+  }
+  .status-pill{
+    font-size:11px;
+    font-family:var(--mono);
+    padding:3px 9px;
+    border-radius:20px;
+    flex-shrink:0;
+  }
+  .status-pill.available{background:var(--green-soft); color:var(--green);}
+  .status-pill.progress{background:var(--amber-soft); color:var(--amber);}
+  .status-pill.design{background:var(--red-soft); color:var(--red);}
+  .open-icon{color:var(--steel-soft); flex-shrink:0;}
+
+  .empty-row{
+    padding:14px 22px;
+    font-size:13px;
+    color:var(--steel);
+  }
+
+  /* ---------- Regions ---------- */
+  .region-tabs{
+    display:flex;
+    gap:6px;
+    padding:16px 22px 0;
+  }
+  .region-tab{
+    padding:8px 16px;
+    font-size:13px;
+    font-weight:500;
+    font-family:var(--body);
+    border:1px solid var(--line);
+    border-bottom:none;
+    border-radius:8px 8px 0 0;
+    background:var(--canvas);
+    color:var(--steel);
+    cursor:pointer;
+  }
+  .region-tab.active{background:var(--panel); color:var(--ink); border-color:var(--line); position:relative; top:1px;}
+  .region-panel{display:none; padding:6px 0 4px;}
+  .region-panel.active{display:block;}
+  .region-empty{
+    margin:16px 22px 20px;
+    border:1px dashed var(--line);
+    border-radius:8px;
+    padding:22px;
+    text-align:center;
+  }
+  .region-empty .t{font-family:var(--display); font-size:14px; font-weight:600; margin-bottom:5px;}
+  .region-empty .d{font-size:12.5px; color:var(--steel); max-width:360px; margin:0 auto;}
+
+  /* ---------- GCE ---------- */
+  .gce-card{
+    margin:18px 22px 22px;
+    background:var(--ink);
+    border-radius:10px;
+    padding:22px 24px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:20px;
+    flex-wrap:wrap;
+  }
+  .gce-card .t{font-family:var(--display); font-size:16px; color:#fff; font-weight:600;}
+  .gce-card .d{font-size:12.5px; color:var(--steel-soft); margin-top:6px; max-width:420px;}
+  .gce-card .go{
+    font-family:var(--mono);
+    font-size:12px;
+    background:var(--amber);
+    color:#fff;
+    padding:9px 16px;
+    border-radius:7px;
+    white-space:nowrap;
+    text-decoration:none;
+  }
+  .gce-count{font-family:var(--mono); font-size:26px; color:var(--amber); font-weight:600;}
+  .gce-count-lbl{font-size:11px; color:var(--steel-soft);}
+
+  .no-results{
+    padding:40px 22px;
+    text-align:center;
+    color:var(--steel);
+    font-size:13.5px;
+    display:none;
+  }
+
+  @media (max-width:900px){
+    .sidebar{position:relative; width:100%; height:auto; flex-direction:row; overflow-x:auto;}
+    .sidebar-brand{display:none;}
+    .nav-group{display:flex; padding:10px 12px; white-space:nowrap;}
+    .nav-group-label{display:none;}
+    .sidebar-foot{display:none;}
+    .shell{flex-direction:column;}
+    .topbar{flex-wrap:wrap;}
+    .legend{display:none;}
+    .content{padding:18px 16px 40px;}
+    .hero{padding:18px 16px 4px;}
+  }
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar">
+    <div class="sidebar-brand">
+      <div class="mark">MOLEX · O2C ANALYTICS</div>
+      <h1>Control Tower</h1>
+      <p>Order to Cash reporting hub for Sales, CSR, and Ops teams.</p>
+    </div>
+
+    <div class="nav-group" id="navGlobal">
+      <div class="nav-group-label">Global reports</div>
+      <!-- injected -->
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-label">Regional views</div>
+      <button class="nav-item" data-jump="regions"><span>Custom by region</span></button>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-label">Team workspace</div>
+      <button class="nav-item" data-jump="gce"><span>GCE Workspace</span><span class="count">27</span></button>
+    </div>
+
+    <div class="sidebar-foot">33 global reports · updated for Studio → Molex OTC</div>
+  </nav>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="topbar">
+      <h2>Order to Cash Process Analytics</h2>
+      <div class="search-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input id="searchInput" type="text" placeholder="Search reports by name or code…">
+      </div>
+      <div class="legend">
+        <span><i class="dot available"></i>Available</span>
+        <span><i class="dot progress"></i>In progress</span>
+        <span><i class="dot design"></i>Design stage</span>
+      </div>
+    </div>
+
+    <div class="hero">
+      <div class="hero-bar">
+        <div class="welcome">Welcome back, Sagar
+          <span>Everything from order intake to cash — one place to find it.</span>
+        </div>
+        <div class="hero-stats">
+          <div class="hero-stat"><div class="num">33</div><div class="lbl">Global reports</div></div>
+          <div class="hero-stat"><div class="num">8</div><div class="lbl">Categories</div></div>
+          <div class="hero-stat"><div class="num">4</div><div class="lbl">Regions</div></div>
+          <div class="hero-stat"><div class="num">27</div><div class="lbl">GCE workspace items</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="content" id="content">
+      <div id="sectionsRoot"></div>
+      <div class="no-results" id="noResults">No reports match your search. Try a different name or O2C code.</div>
+
+      <!-- REGIONS -->
+      <div class="section" id="regions">
+        <div class="section-head">
+          <h3>Regional custom views</h3>
+          <span class="sub">Views maintained locally by each region</span>
+        </div>
+        <div class="region-tabs" id="regionTabs"></div>
+        <div id="regionPanels"></div>
+      </div>
+
+      <!-- GCE -->
+      <div class="section" id="gce">
+        <div class="section-head">
+          <h3>GCE Workspace</h3>
+          <span class="sub">Separate workspace maintained by the GCE team</span>
+        </div>
+        <div class="gce-card">
+          <div>
+            <div class="t">GCE team workspace</div>
+            <div class="d">A dedicated Studio workspace with its own report set, built and maintained by the GCE team. Open it directly to browse all 27 reports.</div>
+          </div>
+          <div style="display:flex; align-items:center; gap:18px;">
+            <div>
+              <div class="gce-count">27</div>
+              <div class="gce-count-lbl">reports</div>
+            </div>
+            <a class="go" href="#">Open workspace →</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const CATEGORIES = [
+  {
+    id: "order-status",
+    name: "Order Status & Visibility",
+    sub: "Where every order stands, end to end",
+    reports: [
+      ["O2C01","Sales Order Overview"],
+      ["O2C04","Order Acknowledgement & Confirmation"],
+      ["O2C07","Order Maintenance – Discrete Orders"],
+      ["O2C20","Scheduling Agreement"],
+      ["O2C22","Sales Order Status"],
+      ["O2C22.1","Backlog Details"],
+      ["O2C23","Unconfirmed Order Analysis"],
+    ]
+  },
+  {
+    id: "performance",
+    name: "Performance & Cycle Time",
+    sub: "Speed and cost of the order lifecycle",
+    reports: [
+      ["O2C02","Command Center"],
+      ["O2C03","Cycle Time"],
+      ["O2C06","Automation & Productivity"],
+      ["O2C11","Cost of a SO"],
+      ["O2C12","Lead Time"],
+      ["O2C27","Delivery Performance (Discrete Orders)"],
+      ["O2C32","CRD Backlog & Lead Time Risk"],
+    ]
+  },
+  {
+    id: "quality",
+    name: "Quality, Changes & Compliance",
+    sub: "Rework, rejections, and conformance",
+    reports: [
+      ["O2C05","Change Analysis"],
+      ["O2C09","Rework"],
+      ["O2C10","Rejections"],
+      ["O2C14","Conformance Analysis"],
+      ["O2C35","Gap Report"],
+    ]
+  },
+  {
+    id: "csr",
+    name: "CSR Views",
+    sub: "Working views for Customer Service Reps",
+    reports: [
+      ["O2C24","CSR – BU / Billing"],
+      ["O2C25","CSR Discrete Order View"],
+      ["O2C26","CSR All-in-One View"],
+    ]
+  },
+  {
+    id: "master-data",
+    name: "Master Data & Materials",
+    sub: "Material, stock, and data integrity",
+    reports: [
+      ["O2C15","Material Stock"],
+      ["O2C17","Master Data Analysis"],
+      ["O2C29","Material Master View"],
+      ["O2C33","VMI"],
+    ]
+  },
+  {
+    id: "forecast",
+    name: "Forecast & Planning",
+    sub: "Demand signals and new product intake",
+    reports: [
+      ["O2C28","Forecast Fluctuation / Shippable Parts / Cancelled Orders"],
+      ["O2C30","NPI Overview", "design"],
+      ["O2C34","ZAPO Forecast"],
+    ]
+  },
+  {
+    id: "salesforce",
+    name: "Salesforce & Case Management",
+    sub: "Case volume and Salesforce activity",
+    reports: [
+      ["O2C08","Salesforce Case Insights"],
+      ["O2C19","Salesforce Overview"],
+    ]
+  },
+  {
+    id: "system",
+    name: "System, Benchmarking & Finance",
+    sub: "Landscape, roles, booking and billing",
+    reports: [
+      ["O2C16","System Landscape, Activities & Roles"],
+      ["O2C18","Benchmarking View"],
+      ["O2C31","Booking / Billing"],
+    ]
+  },
+];
+
+const REGIONS = ["AME","APN","APS","EUR"];
+const FULL_NAMES = {AME:"Americas", APN:"Asia Pacific North", APS:"Asia Pacific South", EUR:"Europe"};
+
+const sectionsRoot = document.getElementById('sectionsRoot');
+const navGlobal = document.getElementById('navGlobal');
+
+function statusPill(status){
+  if(status === "design") return '<span class="status-pill design">Design stage</span>';
+  if(status === "progress") return '<span class="status-pill progress">In progress</span>';
+  return '<span class="status-pill available">Available</span>';
+}
+
+CATEGORIES.forEach(cat => {
+  const section = document.createElement('div');
+  section.className = 'section';
+  section.id = cat.id;
+  section.innerHTML = `
+    <div class="section-head">
+      <h3>${cat.name}</h3>
+      <span class="sub">${cat.sub}</span>
+    </div>
+    <div class="report-list">
+      ${cat.reports.map(r => `
+        <a class="report-row" href="#" data-search="${(r[0]+' '+r[1]).toLowerCase()}">
+          <span class="report-code">${r[0]}</span>
+          <span class="report-name">${r[1]}</span>
+          ${statusPill(r[2])}
+          <svg class="open-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        </a>
+      `).join('')}
+    </div>
+  `;
+  sectionsRoot.appendChild(section);
+
+  const navBtn = document.createElement('button');
+  navBtn.className = 'nav-item';
+  navBtn.dataset.jump = cat.id;
+  navBtn.innerHTML = `<span>${cat.name}</span><span class="count">${cat.reports.length}</span>`;
+  navGlobal.appendChild(navBtn);
+});
+
+// Region tabs
+const regionTabs = document.getElementById('regionTabs');
+const regionPanels = document.getElementById('regionPanels');
+REGIONS.forEach((r, i) => {
+  const tab = document.createElement('button');
+  tab.className = 'region-tab' + (i===0 ? ' active' : '');
+  tab.textContent = r;
+  tab.dataset.region = r;
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.region-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.region-panel').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('panel-'+r).classList.add('active');
+  });
+  regionTabs.appendChild(tab);
+
+  const panel = document.createElement('div');
+  panel.className = 'region-panel' + (i===0 ? ' active' : '');
+  panel.id = 'panel-'+r;
+  panel.innerHTML = `
+    <div class="region-empty">
+      <div class="t">No ${FULL_NAMES[r]} views published yet</div>
+      <div class="d">Add ${r}-specific reports here as they're built, so the region's team lands on their own views instead of the global set.</div>
+    </div>
+  `;
+  regionPanels.appendChild(panel);
+});
+
+// Nav click + scroll spy
+document.querySelectorAll('.nav-item[data-jump]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.getElementById(btn.dataset.jump)?.scrollIntoView({behavior:'smooth', block:'start'});
+  });
+});
+const allNavItems = document.querySelectorAll('.nav-item[data-jump]');
+const observedSections = [...CATEGORIES.map(c=>c.id), 'regions', 'gce'];
+const io = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if(entry.isIntersecting){
+      allNavItems.forEach(b => b.classList.toggle('active', b.dataset.jump === entry.target.id));
+    }
+  });
+}, {rootMargin: '-40% 0px -50% 0px'});
+observedSections.forEach(id => { const el = document.getElementById(id); if(el) io.observe(el); });
+
+// Search filter
+const searchInput = document.getElementById('searchInput');
+const noResults = document.getElementById('noResults');
+searchInput.addEventListener('input', () => {
+  const q = searchInput.value.trim().toLowerCase();
+  let visibleCount = 0;
+  CATEGORIES.forEach(cat => {
+    const section = document.getElementById(cat.id);
+    let anyVisible = false;
+    section.querySelectorAll('.report-row').forEach(row => {
+      const match = row.dataset.search.includes(q);
+      row.style.display = match ? '' : 'none';
+      if(match){anyVisible = true; visibleCount++;}
+    });
+    section.style.display = (q === '' || anyVisible) ? '' : 'none';
+  });
+  document.getElementById('regions').style.display = q === '' ? '' : 'none';
+  document.getElementById('gce').style.display = q === '' ? '' : 'none';
+  noResults.style.display = (q !== '' && visibleCount === 0) ? 'block' : 'none';
+});
+</script>
+</body>
+</html>

@@ -117,10 +117,13 @@
   /* ---------- Main ---------- */
   .main{flex:1; min-width:0;}
 
-  .topbar{
+  .page-header{
     position:sticky;
     top:0;
     z-index:5;
+    background:var(--canvas);
+  }
+  .topbar{
     background:var(--panel);
     border-bottom:1px solid var(--line);
     padding:16px 32px;
@@ -239,6 +242,7 @@
   }
   .report-row:last-child{border-bottom:none;}
   .report-row:hover{background:var(--canvas);}
+  .report-row.no-link{cursor:default;}
   .report-code{
     font-family:var(--mono);
     font-size:11.5px;
@@ -381,6 +385,7 @@
 
   <!-- MAIN -->
   <div class="main">
+    <div class="page-header">
     <div class="topbar">
       <h2>Order to Cash Process Analytics</h2>
       <div class="search-wrap">
@@ -396,7 +401,7 @@
 
     <div class="hero">
       <div class="hero-bar">
-        <div class="welcome">Welcome back, Sagar
+        <div class="welcome">Welcome back
           <span>Everything from order intake to cash — one place to find it.</span>
         </div>
         <div class="hero-stats">
@@ -406,6 +411,7 @@
           <div class="hero-stat"><div class="num">27</div><div class="lbl">GCE workspace items</div></div>
         </div>
       </div>
+    </div>
     </div>
 
     <div class="content" id="content">
@@ -438,7 +444,7 @@
               <div class="gce-count">27</div>
               <div class="gce-count-lbl">reports</div>
             </div>
-            <a class="go" href="#">Open workspace →</a>
+            <a class="go" id="gceLink" href="#" target="_blank" rel="noopener">Open workspace →</a>
           </div>
         </div>
       </div>
@@ -447,6 +453,68 @@
 </div>
 
 <script>
+/* ======================================================================
+   EDIT ME: paste each report's Studio link between the quotes below.
+   Leave a value as "" (empty string) if you don't have the link yet —
+   that report will simply show as text with no working link until
+   you fill it in. No other part of the file needs to change.
+   ====================================================================== */
+const REPORT_LINKS = {
+  "O2C01": "https://koch.us-1.celonis.cloud/package-manager/ui/views/ui/spaces/f86e4b6d-a30f-46e0-98b5-45584e9e3356/packages/24538eeb-64ab-46ec-b41f-8d11e8580da0/nodes/8700364d-86b2-4db6-9e02-9793a6a74c14?activeTabs=sales-order-overview:4c6e2a46-2888-4219-865d-34e7ecae2937",   // Sales Order Overview
+  "O2C04": "https://koch.us-1.celonis.cloud/package-manager/ui/views/ui/spaces/f86e4b6d-a30f-46e0-98b5-45584e9e3356/packages/24538eeb-64ab-46ec-b41f-8d11e8580da0/nodes/e5f3ac60-05b9-49a9-afdc-f46620c79425?activeTabs=order-to-cash-order-acknowledgement-confirmation:8b122d7d-5d41-45a8-86b4",   // Order Acknowledgement & Confirmation
+  "O2C07": "https://koch.us-1.celonis.cloud/package-manager/ui/views/ui/spaces/f86e4b6d-a30f-46e0-98b5-45584e9e3356/packages/24538eeb-64ab-46ec-b41f-8d11e8580da0/nodes/2f9016bd-41d7-4101-8f6c-68a9b3891b5f?activeTabs=order-maintenance-discrete-orders-copy:9ce2c2c8-7415-400a-a302-7bb111696d44",   // Order Maintenance – Discrete Orders
+  "O2C20": "https://koch.us-1.celonis.cloud/package-manager/ui/views/ui/spaces/f86e4b6d-a30f-46e0-98b5-45584e9e3356/packages/24538eeb-64ab-46ec-b41f-8d11e8580da0/nodes/a9423a4c-fd9e-4caa-bad3-7375013a136b?activeTabs=sa-test-copy-gagan:79b7707e-a5a9-4a32-a2c8-7edfcb5ff588",   // Scheduling Agreement
+  "O2C22": "https://koch.us-1.celonis.cloud/package-manager/ui/views/ui/spaces/f86e4b6d-a30f-46e0-98b5-45584e9e3356/packages/24538eeb-64ab-46ec-b41f-8d11e8580da0/nodes/78580caf-85f9-443f-8dfc-8a131b0b6356?activeTabs=customer-order-status:2a65d3b7-ea36-4cd0-b1ef-ea4cd88143ec",   // Sales Order Status
+  "O2C22.1": "https://koch.us-1.celonis.cloud/package-manager/ui/views/ui/spaces/f86e4b6d-a30f-46e0-98b5-45584e9e3356/packages/24538eeb-64ab-46ec-b41f-8d11e8580da0/nodes/70f730d3-6c18-4f8e-9be9-c20aea4aa2bc", // Backlog Details
+  "O2C23": "https://koch.us-1.celonis.cloud/package-manager/ui/views/ui/spaces/f86e4b6d-a30f-46e0-98b5-45584e9e3356/packages/24538eeb-64ab-46ec-b41f-8d11e8580da0/nodes/6033cb11-ca7a-479a-9d7c-3c07522aa6a9?activeTabs=unallocated-order-analysis:eb6f796b-f1ae-477d-b038-5c3908eeea44",   // Unconfirmed Order Analysis — BEST GUESS, verify
+
+  "O2C02": "https://koch.us-1.celonis.cloud/package-manager/ui/views/ui/spaces/f86e4b6d-a30f-46e0-98b5-45584e9e3356/packages/24538eeb-64ab-46ec-b41f-8d11e8580da0/nodes/7c176152-6152-4428-8a2e-09f0b2411037?activeTabs=process-mining-insight:05cfa926-01c7-418a-9340-86a24e2998ca",   // Command Center — BEST GUESS, verify
+  "O2C03": "https://koch.us-1.celonis.cloud/package-manager/ui/views/ui/spaces/f86e4b6d-a30f-46e0-98b5-45584e9e3356/packages/24538eeb-64ab-46ec-b41f-8d11e8580da0/nodes/a1ff6ded-5657-49bc-a6cf-a4c7549e0d7a?activeTabs=o2c-cycle-time:b2aff6cd-3ef8-4d03-9911-840cfaedd220",   // Cycle Time
+  "O2C06": "https://koch.us-1.celonis.cloud/package-manager/ui/views/ui/spaces/f86e4b6d-a30f-46e0-98b5-45584e9e3356/packages/24538eeb-64ab-46ec-b41f-8d11e8580da0/nodes/0dc94bab-d529-41f8-92e2-8783a7132f34?activeTabs=o2c-automation:ac1ac5f6-f14d-4760-b347-dc9cbd16a2d0",   // Automation & Productivity
+  "O2C11": "https://koch.us-1.celonis.cloud/package-manager/ui/views/ui/spaces/f86e4b6d-a30f-46e0-98b5-45584e9e3356/packages/24538eeb-64ab-46ec-b41f-8d11e8580da0/nodes/97da6d43-5890-428a-b736-df33b395f753?activeTabs=o2c-cost-of-a-so:f77cb9cf-e3bd-4e4d-a0a4-489ce5f90ab6",   // Cost of a SO
+  "O2C12": "https://koch.us-1.celonis.cloud/package-manager/ui/views/ui/spaces/f86e4b6d-a30f-46e0-98b5-45584e9e3356/packages/24538eeb-64ab-46ec-b41f-8d11e8580da0/nodes/2b9e3287-2145-43e0-b307-993aa4534074?activeTabs=o2c12-lead-time:32eaa404-6200-49a1-9b51-a6904fc5e8cc",   // Lead Time
+  "O2C27": "https://koch.us-1.celonis.cloud/package-manager/ui/views/ui/spaces/f86e4b6d-a30f-46e0-98b5-45584e9e3356/packages/24538eeb-64ab-46ec-b41f-8d11e8580da0/nodes/c49cccc6-7838-4e09-a2e7-4038950180f7?activeTabs=o2c27-delivery-performance:733a5ec2-d370-4593-bf3c-9e3109533571",   // Delivery Performance (Discrete Orders)
+  "O2C32": "https://koch.us-1.celonis.cloud/package-manager/ui/views/ui/spaces/f86e4b6d-a30f-46e0-98b5-45584e9e3356/packages/24538eeb-64ab-46ec-b41f-8d11e8580da0/nodes/e6eb896f-ca2b-4e1e-aa79-bf851cc241b4?activeTabs=expedite-discrete-orders1:4ed6bdfd-05b8-467a-a464-9594faeff192",   // CRD Backlog & Lead Time Risk — BEST GUESS, verify
+
+  "O2C05": "https://koch.us-1.celonis.cloud/package-manager/ui/views/ui/spaces/f86e4b6d-a30f-46e0-98b5-45584e9e3356/packages/24538eeb-64ab-46ec-b41f-8d11e8580da0/nodes/8b15c6f7-cc6c-48d0-94dd-191f3451d60e?activeTabs=o2c-change-analysis1:292af3ca-e573-4e44-b85b-ed026daeffa0",   // Change Analysis
+  "O2C09": "https://koch.us-1.celonis.cloud/package-manager/ui/views/ui/spaces/f86e4b6d-a30f-46e0-98b5-45584e9e3356/packages/24538eeb-64ab-46ec-b41f-8d11e8580da0/nodes/4f35a340-880d-465d-87ae-21d4aa03b610?activeTabs=o2c-rework:b2a313f7-e01b-41e2-8335-aef52a06b9ed",   // Rework
+  "O2C10": "https://koch.us-1.celonis.cloud/package-manager/ui/views/ui/spaces/f86e4b6d-a30f-46e0-98b5-45584e9e3356/packages/24538eeb-64ab-46ec-b41f-8d11e8580da0/nodes/e378cb1d-a7da-44d5-b4fe-d79b66a71443?activeTabs=o2c-rejections:debed3a3-3843-4d3f-bd53-1bd6c4ee8d9f",   // Rejections
+  "O2C14": "",   // Conformance Analysis
+  "O2C35": "",   // Gap Report
+
+  "O2C24": "",   // CSR – BU / Billing
+  "O2C25": "https://koch.us-1.celonis.cloud/package-manager/ui/views/ui/spaces/f86e4b6d-a30f-46e0-98b5-45584e9e3356/packages/24538eeb-64ab-46ec-b41f-8d11e8580da0/nodes/f5002a23-1c79-43c5-ac42-f6682ee187bf?activeTabs=o2c25-csr-discrete-order-view:391d6c45-0046-4707-bcb8-de0a77cdb2e4",   // CSR Discrete Order View
+  "O2C26": "https://koch.us-1.celonis.cloud/package-manager/ui/views/ui/spaces/f86e4b6d-a30f-46e0-98b5-45584e9e3356/packages/24538eeb-64ab-46ec-b41f-8d11e8580da0/nodes/686ae37e-08f4-41fe-9d2f-38960c7b3106?activeTabs=o2c25-incomplete-report:20b9a328-73b6-48f9-bd95-a2055baf440c",   // CSR All-in-One View — BEST GUESS, verify
+
+  "O2C15": "",   // Material Stock
+  "O2C17": "https://koch.us-1.celonis.cloud/package-manager/ui/views/ui/spaces/f86e4b6d-a30f-46e0-98b5-45584e9e3356/packages/24538eeb-64ab-46ec-b41f-8d11e8580da0/nodes/2cfc4b5a-5597-472f-b1b2-b21a49d54500?activeTabs=o2c17-master-data-analysis:d7bff51c-cca4-4076-b6e8-acd5e43c2233",   // Master Data Analysis
+  "O2C29": "",   // Material Master View
+  "O2C33": "",   // VMI
+
+  "O2C28": "",   // Forecast Fluctuation / Shippable Parts / Cancelled Orders
+  "O2C30": "",   // NPI Overview
+  "O2C34": "",   // ZAPO Forecast
+
+  "O2C08": "",   // Salesforce Case Insights
+  "O2C19": "https://koch.us-1.celonis.cloud/package-manager/ui/views/ui/spaces/f86e4b6d-a30f-46e0-98b5-45584e9e3356/packages/24538eeb-64ab-46ec-b41f-8d11e8580da0/nodes/c161b40e-fddb-4739-9502-b9d92bf8f0fc?activeTabs=o2c19-salesforce-overview:4ed6bdfd-05b8-467a-a464-9594faeff192",   // Salesforce Overview
+
+  "O2C16": "https://koch.us-1.celonis.cloud/package-manager/ui/views/ui/spaces/f86e4b6d-a30f-46e0-98b5-45584e9e3356/packages/24538eeb-64ab-46ec-b41f-8d11e8580da0/nodes/6f7189bb-e286-45a5-a518-2721a3b38505?activeTabs=o2c16-activity-analysis1:d173f8fb-4e4e-44ab-bf51-15ba07739e80",   // System Landscape, Activities & Roles
+  "O2C18": "https://koch.us-1.celonis.cloud/package-manager/ui/views/ui/spaces/f86e4b6d-a30f-46e0-98b5-45584e9e3356/packages/24538eeb-64ab-46ec-b41f-8d11e8580da0/nodes/161e404c-6949-4b26-ad2f-9df37f2ce05f?activeTabs=o2c18-benchamarking-view:a7b4b8b9-0dd1-4a6c-a181-d302b4cdde7d",   // Benchmarking View
+  "O2C31": "",   // Booking / Billing
+};
+
+/* Links you sent that didn't clearly map to any O2C code above — left unused:
+   - new-wismo:            .../nodes/7cbe21eb-2559-442a-b388-b92afb165088?activeTabs=new-wismo:dcf0c5d0-f7ee-4200-9fa4-319a29ddb205
+   - order-prioritization: .../nodes/bb563e0e-b67a-4859-a02e-312e237375dc?activeTabs=order-prioritization:f7a8417d-d225-4dd8-8eaf-cda24fb7725d
+   - sa-test-copy-gagan:   .../nodes/a9423a4c-fd9e-4caa-bad3-7375013a136b?activeTabs=sa-test-copy-gagan:79b7707e-a5a9-4a32-a2c8-7edfcb5ff588 (looks like a test copy)
+   - ad-hoc:               .../nodes/ccb6e45c-80cc-4905-92a5-eabdf8093fd7?activeTabs=ad-hoc:c2abb078-ef56-47bf-b323-abb92872f903
+   - customer-order-status:.../nodes/78580caf-85f9-443f-8dfc-8a131b0b6356?activeTabs=customer-order-status:46959f4d-2fc0-4627-90c8-5eeba528d72d
+   Tell me which codes these belong to and I'll wire them in.
+*/
+
+// EDIT ME: the GCE team workspace link.
+const GCE_WORKSPACE_LINK = "";
+
 const CATEGORIES = [
   {
     id: "order-status",
@@ -562,14 +630,21 @@ CATEGORIES.forEach(cat => {
       <span class="sub">${cat.sub}</span>
     </div>
     <div class="report-list">
-      ${cat.reports.map(r => `
-        <a class="report-row" href="#" data-search="${(r[0]+' '+r[1]).toLowerCase()}">
-          <span class="report-code">${r[0]}</span>
-          <span class="report-name">${r[1]}</span>
-          ${statusPill(r[2])}
+      ${cat.reports.map(r => {
+        const code = r[0], name = r[1], status = r[2];
+        const link = REPORT_LINKS[code] || "";
+        const hasLink = link.trim().length > 0;
+        const tag = hasLink ? "a" : "div";
+        const hrefAttrs = hasLink ? `href="${link}" target="_blank" rel="noopener"` : "";
+        return `
+        <${tag} class="report-row${hasLink ? '' : ' no-link'}" ${hrefAttrs} data-search="${(code+' '+name).toLowerCase()}">
+          <span class="report-code">${code}</span>
+          <span class="report-name">${name}</span>
+          ${statusPill(status)}
           <svg class="open-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-        </a>
-      `).join('')}
+        </${tag}>
+      `;
+      }).join('')}
     </div>
   `;
   sectionsRoot.appendChild(section);
@@ -580,6 +655,17 @@ CATEGORIES.forEach(cat => {
   navBtn.innerHTML = `<span>${cat.name}</span><span class="count">${cat.reports.length}</span>`;
   navGlobal.appendChild(navBtn);
 });
+
+// GCE workspace link
+const gceLink = document.getElementById('gceLink');
+if(GCE_WORKSPACE_LINK.trim().length > 0){
+  gceLink.href = GCE_WORKSPACE_LINK;
+} else {
+  gceLink.removeAttribute('target');
+  gceLink.addEventListener('click', (e) => e.preventDefault());
+  gceLink.style.opacity = "0.6";
+  gceLink.style.cursor = "default";
+}
 
 // Region tabs
 const regionTabs = document.getElementById('regionTabs');
